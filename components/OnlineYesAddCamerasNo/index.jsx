@@ -16,6 +16,7 @@ class OnlineYesAddCamerasNo extends React.Component {
   render() {
     return (
       <div className="x3-column-box-simple">
+        <div className="nvrjs-link-div"><a className="nvrjs-link" href={"http://" + this.props.nodeIPAddress + ":7878"}>Download Footage</a></div>
         <div className="flex-col">
           <div className="x52-common-street opensans-normal-lochmara-10px">{this.props.address}</div>
 

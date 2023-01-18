@@ -32,7 +32,7 @@ class GridContent extends React.Component {
   refreshRecentlyCheckedIn() {
     var nodeHash = {}
 
-    fetch('http://rtcc-server.shreveport-it.org:3000/api/nodes/recentlyCheckedIn')
+    fetch('http://demo.crime-vision.com:3000/api/nodes/recentlyCheckedIn')
       .then((response) => response.json())
       .then( (json) => {
         json.forEach(node => {
@@ -47,7 +47,7 @@ class GridContent extends React.Component {
                 "channels": {
                   "0": {
                     "name": "ch1",
-                    "url": `rtsp://${node.config.cameras["camera"+i].username}:${node.config.cameras["camera"+i].password}@${node.config.ip}:${553 + i}/cam/realmonitor?channel=1&subtype=1`,
+                    "url": `rtsp://${node.config.rtspUsername}:${node.config.rtspPassword}@${node.config.ip}:${553 + i}/cam/realmonitor?channel=1&subtype=1`,
                     "on_demand": true,
                     "debug": false,
                     "status": 0
@@ -62,7 +62,7 @@ class GridContent extends React.Component {
             };
 
             console.log(`Adding stream: ${streamName}`);
-            fetch(`http://rtcc-restreamer.shreveport-it.org/stream/${streamName}/add`, requestOptions);
+            fetch(`http://demo.crime-vision.com:8083/stream/${streamName}/add`, requestOptions);
 
           }
         });
@@ -131,7 +131,7 @@ class GridContent extends React.Component {
 
       await pc.setLocalDescription(offer);
 
-      let receiverUrl = `http://rtcc-restreamer.shreveport-it.org/stream/${nodeName}Camera${streamChannel}/channel/0/webrtc`;
+      let receiverUrl = `http://demo.crime-vision.com:8083/stream/${nodeName}Camera${streamChannel}/channel/0/webrtc`;
 
       fetch(receiverUrl, {
         method: 'POST', 
@@ -192,7 +192,8 @@ class GridContent extends React.Component {
                       handleClose={this.handleCloseStreamingNode} 
                       key={name} 
                       name={name} 
-                      address={"Node Address Here"} />
+                      nodeIPAddress={streamingNode.config.ip}
+              />
           } ) }
         </div>
       </div>
