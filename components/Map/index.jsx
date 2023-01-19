@@ -9,8 +9,8 @@ class Map extends React.Component {
 	
 	static defaultProps = {
     center: {
-      lat: 32.4368622,
-      lng: -93.7550222
+      lat: 31.1435,
+      lng: -93.261
     },
     zoom: 12,
     nodes: {}

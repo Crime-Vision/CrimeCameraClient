@@ -1,5 +1,6 @@
 import React from "react";
 import "./Navigation.sass";
+import logo from "./crime-vision-logo-small.png";
 
 class Navigation extends React.Component {
   render() {
@@ -7,9 +8,9 @@ class Navigation extends React.Component {
       <div className="navigation">
         <img
           className="rtcc-logo-transparent-image-1-1-1"
-          src="https://anima-uploads.s3.amazonaws.com/projects/62740a351203600aeca6fcdf/releases/62743ddc4a70dc875cbf7976/img/rtcc-logo-transparent-image--1---1--1@2x.png"
+          src={logo}
         />
-        <div className="real-time-crime-tracker worksans-bold-white-20px">RTCC - Analyst</div>
+        <div className="real-time-crime-tracker worksans-bold-white-20px">Crime-Vision Analyst</div>
       </div>
     );
   }
