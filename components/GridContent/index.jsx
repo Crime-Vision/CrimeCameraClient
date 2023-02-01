@@ -32,7 +32,7 @@ class GridContent extends React.Component {
   refreshRecentlyCheckedIn() {
     var nodeHash = {}
 
-    fetch('http://demo.crime-vision.com:3000/api/nodes/recentlyCheckedIn')
+    fetch(`http://${process.env.API_HOST_AND_PORT || 'localhost:3000'}/api/nodes/recentlyCheckedIn`)
       .then((response) => response.json())
       .then( (json) => {
         json.forEach(node => {
@@ -77,6 +77,8 @@ class GridContent extends React.Component {
     var clickedNode = {};
 
     clickedNode = this.state.nodes[e.target.dataset.name];
+
+    console.log(clickedNode);
 
     clickedNode.cameraReferenceOne = React.createRef();
     clickedNode.cameraReferenceTwo = React.createRef();
@@ -131,7 +133,7 @@ class GridContent extends React.Component {
 
       await pc.setLocalDescription(offer);
 
-      let receiverUrl = `http://demo.crime-vision.com:8083/stream/${nodeName}Camera${streamChannel}/channel/0/webrtc`;
+      let receiverUrl = `http://${process.env.RTSPTOWEB_HOST_AND_PORT || 'localhost:8083'}/stream/${nodeName}Camera${streamChannel}/channel/0/webrtc`;
 
       fetch(receiverUrl, {
         method: 'POST', 

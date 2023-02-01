@@ -3,8 +3,6 @@ WORKDIR /app
 
 COPY . /app
 
-RUN npm ci
+EXPOSE 1234
 
-EXPOSE 3001
-
-CMD npm run start
+CMD npm ci && npm run start
