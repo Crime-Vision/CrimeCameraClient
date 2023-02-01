@@ -62,7 +62,7 @@ class GridContent extends React.Component {
             };
 
             console.log(`Adding stream: ${streamName}`);
-            fetch(`http://demo.crime-vision.com:8083/stream/${streamName}/add`, requestOptions);
+            fetch(`http://${process.env.RTSPTOWEB_HOST_AND_PORT || 'localhost:8083'}/stream/${streamName}/add`, requestOptions);
 
           }
         });
