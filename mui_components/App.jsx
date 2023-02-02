@@ -29,21 +29,23 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import Drawer from '@mui/material/Drawer';
 import Paper from '@mui/material/Paper';
-
-
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 
 import Map from "./Map.jsx
 
-function ButtonAppBar() {
+import { createTheme } from '@mui/material/styles';
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+function ButtonAppBar() {
+  const [selectedTab, setSelectedTab] = React.useState('map');
+
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const handleTabClick = (event, newValue) => {
+    setSelectedTab(newValue);
+  });
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -54,21 +56,17 @@ function ButtonAppBar() {
           </div>
           
           <div className="MenuButtonContainer">
-            <Button key="Map" sx={{ my: 2, color: 'white' }} >
-              Map
-            </Button>
-            <span>|</span>
-            <Button key="Map" sx={{ my: 2, color: 'white' }} >
-              Video Wall
-            </Button>
-            <span>|</span>
-            <Button key="Map" sx={{ my: 2, color: 'white' }} >
-              Camera Configuration
-            </Button>
-            <span>|</span>
-            <Button key="Map" sx={{ my: 2, color: 'white' }} >
-              Audit Trails
-            </Button>
+            <Tabs 
+              value={selectedTab}
+              onChange={handleTabClick} 
+            >
+              <Tab value="map" label="Map" />
+              <Tab sx={{display: "none"}} value="calls" label="Calls" />
+              <Tab value="video-wall" label="Video Wall" />
+              <Tab value="admin" label="Camera Administration" />
+              <Tab sx={{display: "none"}} value="status-report" label="Camera Health" />
+            </Tabs>
+              
           </div>
         </Toolbar>
       </AppBar>
