@@ -31,20 +31,48 @@ import Drawer from '@mui/material/Drawer';
 import Paper from '@mui/material/Paper';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import PropTypes from 'prop-types';
 
 import Map from "./Map.jsx
 
 import { createTheme } from '@mui/material/styles';
 
-function ButtonAppBar() {
-  const [selectedTab, setSelectedTab] = React.useState('map');
+function TabPanel(props) {
+  const { children, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      className="tabPanel"
+      {...other}
+    >
+      {children}
+    </div>
+  );
+}
+
+TabPanel.propTypes = {
+  children: PropTypes.node
+};
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
+function ButtonAppBar(props) {
 
   const handleClose = () => {
     setAnchorEl(null);
   };
 
   const handleTabClick = (event, newValue) => {
-    setSelectedTab(newValue);
+    props.app.setState({ selectedTab: newValue });
   });
 
   return (
@@ -57,16 +85,12 @@ function ButtonAppBar() {
           
           <div className="MenuButtonContainer">
             <Tabs 
-              value={selectedTab}
-              onChange={handleTabClick} 
-            >
-              <Tab value="map" label="Map" />
-              <Tab sx={{display: "none"}} value="calls" label="Calls" />
-              <Tab value="video-wall" label="Video Wall" />
-              <Tab value="admin" label="Camera Administration" />
-              <Tab sx={{display: "none"}} value="status-report" label="Camera Health" />
+              value={props.app.state['selectedTab']}
+              onChange={handleTabClick} >
+              <Tab value="map" label="Map" {...a11yProps("calls")} />
+              <Tab value="video-wall" label="Video Wall" {...a11yProps("video-wall")}/>
+              <Tab value="admin" label="Camera Administration" {...a11yProps("admin")} />
             </Tabs>
-              
           </div>
         </Toolbar>
       </AppBar>
@@ -74,14 +98,31 @@ function ButtonAppBar() {
   );
 }
 
+
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selectedTab: "map"
+    }
+  }
+
   render() {
     return (
       <Grid container sx={{height: '100%'}}>
 
         <Grid item xs={12}>
-          <ButtonAppBar/>
-          <Map nodes={[]}></Map>
+          <ButtonAppBar app={this}/>
+          <TabPanel index="map" style={this.state["selectedTab"] != 'map' ? {display: 'none'} : {display: 'block'} }>
+            <Map nodes={[]}></Map>
+          </TabPanel>
+          <TabPanel index="video-wall" style={this.state["selectedTab"] != 'video-wall' ? {display: 'none'} : {display: 'block'} } >
+            <iframe src={`http://${process.env.RTSPTOWEB_HOST_AND_PORT}/pages/multiview/full?controls`} style={{width: "100%", height: "100%"}} />
+          </TabPanel>
+          <TabPanel index="admin" style={this.state["selectedTab"] != 'admin' ? {display: 'none'} : {display: 'block'} }>
+            <iframe src={`http://${process.env.API_HOST_AND_PORT || 'localhost:3000/admin/resources/Nodes'}/`} style={{width: "100%", height: "100%"}} />
+          </TabPanel>
         </Grid>
 
       </Grid>
