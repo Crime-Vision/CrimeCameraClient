@@ -60,7 +60,6 @@ class GridContent extends React.Component {
               body: JSON.stringify(requestBody)
             };
 
-            console.log(`Adding stream: ${streamName}`);
             fetch(`http://${process.env.RTSPTOWEB_HOST_AND_PORT || 'localhost:8083'}/stream/${streamID}/add`, requestOptions);
           });
         });
@@ -76,14 +75,9 @@ class GridContent extends React.Component {
 
     clickedNode = this.state.nodes[e.target.dataset.name];
 
-    console.log(clickedNode);
-
-    clickedNode.cameraReferences = [];
-    clickedNode.mediaStreams = []
-
-    forEach(clickedNode.config.cameras => camera {
-      clickedNode.cameraReferences[camera.cameraNumber] = React.createRef();
-      clickedNode.mediaStreams[camera.cameraNumber] = new MediaStream();
+    clickedNode.config.cameras.forEach(camera => {
+      camera.reference = React.createRef();
+      camera.mediaStream = new MediaStream();
     });
 
     var tempStreamingNodes = this.state.streamingNodes;
@@ -109,10 +103,10 @@ class GridContent extends React.Component {
     });
   }
 
-  wireUpStream(nodeConfig, videoElementReference) {
-    let videoPlayer = videoElementReference.current;
+  wireUpStream(camera) {
+    let videoPlayer = camera.reference;
 
-    let stream = new MediaStream();
+    let stream = camera.mediaStream;
 
     let config = {
       iceServers: [{
@@ -127,7 +121,7 @@ class GridContent extends React.Component {
 
       await pc.setLocalDescription(offer);
 
-      let receiverUrl = `http://${process.env.RTSPTOWEB_HOST_AND_PORT || 'localhost:8083'}/stream/${asdf}/channel/0/webrtc`;
+      let receiverUrl = `http://${process.env.RTSPTOWEB_HOST_AND_PORT || 'localhost:8083'}/stream/${camera.humanReadableName.replaceAll(/\s/g, '-')}/channel/0/webrtc`;
 
       fetch(receiverUrl, {
         method: 'POST', 
@@ -161,7 +155,7 @@ class GridContent extends React.Component {
 
     pc.ontrack = function(event) {
       stream.addTrack(event.track);
-      videoPlayer.srcObject = stream;
+      videoPlayer.current.srcObject = stream;
     }
 
     pc.addTransceiver('video', { 'direction': 'sendrecv' })
@@ -177,17 +171,16 @@ class GridContent extends React.Component {
         <div className="camera-navigation">
 
           { Object.keys(this.state.streamingNodes).reverse().map( (name) => { 
-            var streamingNode = this.state.nodes[name];
+
+            var streamingNode = this.state.streamingNodes[name];
 
             return <OnlineYesAddCamerasNo 
-                      cameraReferences={streamingNode.camerasReferneces}
-                      addStream={this.addStream}
+                      cameras={streamingNode.config.cameras}
                       wireUpStream={this.wireUpStream}
                       handleClose={this.handleCloseStreamingNode} 
                       key={name} 
                       name={name} 
                       nodeIPAddress={streamingNode.config.ip}
-                      nodeConfig={streamingNode.config}
               />
           } ) }
         </div>

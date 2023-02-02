@@ -5,10 +5,14 @@
     "build": "parcel build index.html --public-url ./"
   },
   "dependencies": {
+    "@fontsource/roboto": "^4.5.8",
+    "@mui/material": "^5.11.7",
+    "@mui/styled-engine-sc": "^5.11.0",
     "google-map-react": "^2.1.10",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-router-dom": "5.2.0"
+    "react-router-dom": "5.2.0",
+    "styled-components": "^5.3.6"
   },
   "devDependencies": {
     "@parcel/transformer-sass": "2.5.0",
