@@ -15,12 +15,6 @@ class Map extends React.Component {
   render() {
     return (
       <div className="map">
-        <div className="multiview">
-          <img className="logo" src="https://uploads-ssl.webflow.com/63792297b322091a012c3076/6386d30eb2ea18e282c92389_CrimeVision_Logo_V1.21_1920x1080-p-1600.png" />
-
-          <a target="_blank" href={`http://${process.env.RTSPTOWEB_HOST_AND_PORT || 'localhost:8083'}/pages/multiview/full?controls`}>[Click Here for Video Wall]</a>
-        </div>
-
 				<GoogleMapReact
           bootstrapURLKeys={{ key: 'AIzaSyAxgBe1BLPLfPIPwK0ucb6-SeqkZdckChI' }}
           defaultCenter={this.props.center} defaultZoom={this.props.zoom}>	

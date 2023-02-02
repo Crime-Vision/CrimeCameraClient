@@ -5,6 +5,11 @@
     "build": "parcel build index.html --public-url ./"
   },
   "dependencies": {
+    "@emotion/cache": "^11.10.5",
+    "@emotion/react": "^11.10.5",
+    "@emotion/serialize": "^1.1.1",
+    "@emotion/styled": "^11.10.5",
+    "@emotion/utils": "^1.2.0",
     "@fontsource/roboto": "^4.5.8",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.7",
