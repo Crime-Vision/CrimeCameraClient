@@ -38,19 +38,18 @@ class GridContent extends React.Component {
         json.forEach(node => {
           nodeHash[node.name] = node;
 
-
-          for(var i = 1; i < 4; i++) {
-            var streamName = `${node.name}Camera${i}`;
+          node.config.cameras.forEach(camera => {
+            var streamName = camera.humanReadableName;
+            var streamID = streamName.replaceAll(/\s/g, "-");
 
             var requestBody = {
+              "uuid": streamID,
               "name": streamName,
                 "channels": {
                   "0": {
-                    "name": "ch1",
-                    "url": `rtsp://${node.config.rtspUsername}:${node.config.rtspPassword}@${node.config.ip}:${553 + i}/cam/realmonitor?channel=1&subtype=1`,
+                    "url": `${camera.rtspURL}`,
                     "on_demand": true,
                     "debug": false,
-                    "status": 0
                   }
                 }
             };
@@ -62,9 +61,8 @@ class GridContent extends React.Component {
             };
 
             console.log(`Adding stream: ${streamName}`);
-            fetch(`http://${process.env.RTSPTOWEB_HOST_AND_PORT || 'localhost:8083'}/stream/${streamName}/add`, requestOptions);
-
-          }
+            fetch(`http://${process.env.RTSPTOWEB_HOST_AND_PORT || 'localhost:8083'}/stream/${streamID}/add`, requestOptions);
+          });
         });
 
         this.setState({
@@ -80,13 +78,13 @@ class GridContent extends React.Component {
 
     console.log(clickedNode);
 
-    clickedNode.cameraReferenceOne = React.createRef();
-    clickedNode.cameraReferenceTwo = React.createRef();
-    clickedNode.cameraReferenceThree = React.createRef();
+    clickedNode.cameraReferences = [];
+    clickedNode.mediaStreams = []
 
-    clickedNode.streamOne = new MediaStream();
-    clickedNode.streamTwo = new MediaStream(); 
-    clickedNode.streamThree = new MediaStream();
+    forEach(clickedNode.config.cameras => camera {
+      clickedNode.cameraReferences[camera.cameraNumber] = React.createRef();
+      clickedNode.mediaStreams[camera.cameraNumber] = new MediaStream();
+    });
 
     var tempStreamingNodes = this.state.streamingNodes;
 
@@ -111,11 +109,7 @@ class GridContent extends React.Component {
     });
   }
 
-  addStream(name) {
-
-  }
-
-  wireUpStream(nodeName, streamChannel, videoElementReference) {
+  wireUpStream(nodeConfig, videoElementReference) {
     let videoPlayer = videoElementReference.current;
 
     let stream = new MediaStream();
@@ -133,7 +127,7 @@ class GridContent extends React.Component {
 
       await pc.setLocalDescription(offer);
 
-      let receiverUrl = `http://${process.env.RTSPTOWEB_HOST_AND_PORT || 'localhost:8083'}/stream/${nodeName}Camera${streamChannel}/channel/0/webrtc`;
+      let receiverUrl = `http://${process.env.RTSPTOWEB_HOST_AND_PORT || 'localhost:8083'}/stream/${asdf}/channel/0/webrtc`;
 
       fetch(receiverUrl, {
         method: 'POST', 
@@ -186,15 +180,14 @@ class GridContent extends React.Component {
             var streamingNode = this.state.nodes[name];
 
             return <OnlineYesAddCamerasNo 
-                      cameraReferenceOne={streamingNode.cameraReferenceOne}
-                      cameraReferenceTwo={streamingNode.cameraReferenceTwo}
-                      cameraReferenceThree={streamingNode.cameraReferenceThree}
+                      cameraReferences={streamingNode.camerasReferneces}
                       addStream={this.addStream}
                       wireUpStream={this.wireUpStream}
                       handleClose={this.handleCloseStreamingNode} 
                       key={name} 
                       name={name} 
                       nodeIPAddress={streamingNode.config.ip}
+                      nodeConfig={streamingNode.config}
               />
           } ) }
         </div>

@@ -6,11 +6,9 @@ class OnlineYesAddCamerasNo extends React.Component {
   componentDidMount() {
     console.log(this.props.name);
 
-    this.props.addStream(this.props.name);
-
-    this.props.wireUpStream(this.props.name, 1, this.props.cameraReferenceOne);
-    this.props.wireUpStream(this.props.name, 2, this.props.cameraReferenceTwo);
-    this.props.wireUpStream(this.props.name, 3, this.props.cameraReferenceThree);
+    this.props.wireUpStream(this.props.nodeConfig, 0, this.props.cameraReferenceOne);
+    this.props.wireUpStream(this.props.nodeConfig, 1, this.props.cameraReferenceTwo);
+    this.props.wireUpStream(this.props.nodeConfig, 2, this.props.cameraReferenceThree);
   }
 
   render() {
