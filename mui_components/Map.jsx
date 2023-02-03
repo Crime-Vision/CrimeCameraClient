@@ -3,6 +3,8 @@ import GoogleMapReact from "google-map-react";
 import "./Map.sass";
 
 class Map extends React.Component {
+  //TODO: Update Map Component to fetch it's OWN data, populate pins, and render media players
+
 	static defaultProps = {
     center: {
       lat: 31.1435,
