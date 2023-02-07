@@ -19,7 +19,7 @@ class OnlineYesAddCamerasNo extends React.Component {
     if( typeof(this.props.cameras) !== 'undefined' ) {
 
       content = this.props.cameras.map( camera => {
-        if( typeof(camera) !== 'underfined' ) {
+        if( typeof(camera) !== 'undefined' ) {
           return <video style={ {width: "200px", height: "150px", margin: "10px"} } ref={camera.reference} key={camera.cameraNumber} controls autoPlay />
         } else {
           return ""
