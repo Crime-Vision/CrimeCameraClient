@@ -97,7 +97,8 @@ class VideoGrid extends React.Component {
 
   render() {
     return (
-      <div style={ {display: this.props.display ? 'block' : 'none'} } className="video-grid">
+      <div style={ {display: this.props.display ? 'block' : 'none'} }>
+      <div className="video-grid">
         <Grid container spacing={1}>
           <Grid item xs={12}>
             <Button sx={ {border: "1px solid white" } }color="success" variant="contained" target="_blank" href={`http://${this.props.nodeConfig.ip}:7878/`}>Download Footage</Button> 
@@ -118,9 +119,13 @@ class VideoGrid extends React.Component {
             </Grid>
           } ) }
           <Grid item xs={12}>
-            <Button onClick={this.props.handleClose} sx={ {border: "1px solid white" } } color="error" variant="contained" target="_blank">Close Location</Button> 
           </Grid>
         </Grid>
+
+      </div>
+      <div className="videoGridCloseButton" >
+        <Button onClick={this.props.handleClose} sx={ {border: "1px solid white" } } color="error" variant="contained" target="_blank">Close Location</Button> 
+      </div>
       </div>
     );
   }

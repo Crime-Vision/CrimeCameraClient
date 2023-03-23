@@ -38,12 +38,12 @@ import Map from "./Map.jsx
 import { createTheme } from '@mui/material/styles';
 
 function TabPanel(props) {
-  const { children, index, ...other } = props;
+  const { children, value, index, ...other } = props;
 
   return (
     <div
       role="tabpanel"
-      
+      hidden={value !== index}    
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       className="tabPanel"
@@ -114,13 +114,13 @@ class App extends React.Component {
 
         <Grid item xs={12}>
           <ButtonAppBar app={this}/>
-          <TabPanel index="map" style={this.state["selectedTab"] != 'map' ? {display: 'none'} : {display: 'block'} }>
+          <TabPanel value={this.state["selectedTab"]} index="map">
             <Map nodes={[]}></Map>
           </TabPanel>
-          <TabPanel index="video-wall" style={this.state["selectedTab"] != 'video-wall' ? {display: 'none'} : {display: 'block'} } >
+          <TabPanel value={this.state["selectedTab"]} index="video-wall"  >
             <iframe src={`http://${process.env.RTSPTOWEB_HOST_AND_PORT}/pages/multiview/full?controls`} style={{width: "100%", height: "100%"}} />
           </TabPanel>
-          <TabPanel index="admin" style={this.state["selectedTab"] != 'admin' ? {display: 'none'} : {display: 'block'} }>
+          <TabPanel value={this.state["selectedTab"]} index="admin">
             <iframe src={`http://${process.env.API_HOST_AND_PORT || 'localhost:3000/admin/resources/Nodes'}/`} style={{width: "100%", height: "100%"}} />
           </TabPanel>
         </Grid>
