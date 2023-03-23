@@ -121,7 +121,7 @@ class App extends React.Component {
             <iframe src={`http://${process.env.RTSPTOWEB_HOST_AND_PORT}/pages/multiview/full?controls`} style={{width: "100%", height: "100%"}} />
           </TabPanel>
           <TabPanel value={this.state["selectedTab"]} index="admin">
-            <iframe src={`http://${process.env.API_HOST_AND_PORT || 'localhost:3000/admin/resources/Nodes'}/`} style={{width: "100%", height: "100%"}} />
+            <iframe src={`http://${process.env.API_HOST_AND_PORT || 'localhost:3000'}/admin/resources/Nodes/`} style={{width: "100%", height: "100%"}} />
           </TabPanel>
         </Grid>
 
