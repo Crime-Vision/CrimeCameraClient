@@ -11,70 +11,85 @@ class VideoGrid extends React.Component {
     props.nodeConfig.cameras.forEach(camera => {
       if(camera.reference == null) {
         camera.reference = React.createRef();
-        camera.mediaStream = new MediaStream();
       }
     });
   }
 
   wireUpStream(camera) {
-    let videoPlayer = camera.reference;
+    camera.mse = new MediaSource();
+    camera.mseQueue = [];
+    camera.mseSourceBuffer = null;
+    camera.mseStreamingStarted = false;
+    camera.videoSound = false;
 
-    let stream = camera.mediaStream;
+    camera.reference.current.src = window.URL.createObjectURL(camera.mse);
 
-    let config = {
-      iceServers: [{
-        urls: ["stun:stun.l.google.com:19302"]
-      }]
-    };
+    let url = "ws" + '://' + 'demo.crime-vision.com:8083' + '/stream/' + `${camera.humanReadableName.replaceAll(/\s/g, '-')}` + '/channel/' + '0' + '/mse?uuid=' + `${camera.humanReadableName.replaceAll(/\s/g, '-')}` + '&channel=' + "0";
 
-    if(camera.pc == null) {
-      camera.pc = new RTCPeerConnection(config);
-    }
-
-    camera.pc.onnegotiationneeded = async () => {
-      let offer = await camera.pc.createOffer();
-
-      await camera.pc.setLocalDescription(offer);
-
-      let receiverUrl = `http://${process.env.RTSPTOWEB_HOST_AND_PORT || 'localhost:8083'}/stream/${camera.humanReadableName.replaceAll(/\s/g, '-')}/channel/0/webrtc`;
-
-      fetch(receiverUrl, {
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams({
-          data: btoa(camera.pc.localDescription.sdp)
-        })
-      })
-      .then( (data) => {
-
-        data.text().then(function(blob) {
-
-          try {
-            camera.pc.setRemoteDescription(new RTCSessionDescription({
-              type: 'answer',
-              sdp: atob(blob)
-            }))
-          } catch (e) {
-            console.warn(e);
+    camera.mse.addEventListener('sourceopen', function() {
+      let ws = new WebSocket(url);
+      ws.binaryType = "arraybuffer";
+      ws.onopen = function(event) {
+        console.log('Connect to ws');
+      }
+      ws.onmessage = function(event) {
+        let data = new Uint8Array(event.data);
+        if (data[0] == 9) {
+          let decoded_arr = data.slice(1);
+          let mimeCodec = null;
+          if (window.TextDecoder) {
+            mimeCodec = new TextDecoder("utf-8").decode(decoded_arr);
+          } else {
+            mimeCodec = Utf8ArrayToStr(decoded_arr);
           }
+          if(mimeCodec.indexOf(',')>0){
+            videoSound=true;
+          }
+          camera.mseSourceBuffer = camera.mse.addSourceBuffer('video/mp4; codecs="' + mimeCodec + '"');
+          camera.mseSourceBuffer.mode = "segments"
+          camera.mseSourceBuffer.addEventListener("updateend", pushPacket);
 
-        });
+        } else {
+          readPacket(event.data);
+        }
+      };
+    }, false);
 
-      })
-      .catch(function(e) {
-        console.log(e);
-      });
-    }
+		function pushPacket() {
+			if (!camera.mseSourceBuffer.updating) {
+				if (camera.mseQueue.length > 0) {
+					packet = camera.mseQueue.shift();
+          console.log("Pushing Packet!");
+          console.log(camera);
+          console.log(camera.mseSourceBuffer);
+					camera.mseSourceBuffer.appendBuffer(packet);
+				} else {
+					camera.mseStreamingStarted = false;
+				}
+			}
+			if (camera.reference.current.buffered.length > 0) {
+				if (typeof document.hidden !== "undefined" && document.hidden && !videoSound) {
+					//no sound, browser paused video without sound in background
+					camera.reference.current.currentTime = camera.reference.current.buffered.end((camera.reference.current.buffered.length - 1)) - 0.5;
+				}
+			}
+		}
 
-    camera.pc.ontrack = function(event) {
-      stream.addTrack(event.track);
-      camera.track = event.track;
-      videoPlayer.current.srcObject = stream;
-    }
+		function readPacket(packet) {
+			if (!camera.mseStreamingStarted) {
+				camera.mseSourceBuffer.appendBuffer(packet);
+				camera.mseStreamingStarted = true;
+				return;
+			}
+			camera.mseQueue.push(packet);
+			if (!camera.mseSourceBuffer.updating) {
+				pushPacket();
+			}
+		}
 
-    camera.pc.addTransceiver('video', { 'direction': 'sendrecv' })
+    camera.reference.current.addEventListener('loadeddata', () => {
+      camera.reference.current.play();
+    });
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -88,8 +103,8 @@ class VideoGrid extends React.Component {
     if(!this.props.display && prevProps.display) {
       console.log("Shut down the streams!");
       this.props.nodeConfig.cameras.forEach(camera => {
-        camera.mediaStream.removeTrack(camera.track);
-        camera.pc = null;
+        camera.reference = null;
+        camera = null;
       });
       console.log("Removed the stream");
     }
