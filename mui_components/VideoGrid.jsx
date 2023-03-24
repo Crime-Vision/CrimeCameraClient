@@ -15,6 +15,17 @@ class VideoGrid extends React.Component {
     });
   }
 
+  unwireStream(camera) {
+    camera.ws.close();
+    camera.mse.removeEventListener('sourceopen', camera.sourceOpenCallback, false);
+    console.log("Removed the stream callback");
+    camera.mse = new MediaSource();
+    camera.mseQueue = [];
+    camera.mseSourceBuffer = null;
+    camera.mseStreamingStarted = false;
+    camera.videoSound = false;
+  }
+
   wireUpStream(camera) {
     camera.mse = new MediaSource();
     camera.mseQueue = [];
@@ -23,16 +34,16 @@ class VideoGrid extends React.Component {
     camera.videoSound = false;
 
     camera.reference.current.src = window.URL.createObjectURL(camera.mse);
+    let stream_slug = `${camera.humanReadableName.replaceAll(/\s/g, '-')}`;
 
-    let url = "ws" + '://' + 'demo.crime-vision.com:8083' + '/stream/' + `${camera.humanReadableName.replaceAll(/\s/g, '-')}` + '/channel/' + '0' + '/mse?uuid=' + `${camera.humanReadableName.replaceAll(/\s/g, '-')}` + '&channel=' + "0";
-
-    camera.mse.addEventListener('sourceopen', function() {
-      let ws = new WebSocket(url);
-      ws.binaryType = "arraybuffer";
-      ws.onopen = function(event) {
+    let url = "ws" + '://' + 'demo.crime-vision.com:8083' + '/stream/' + stream_slug + '/channel/' + '0' + '/mse?uuid=' + stream_slug + '&channel=' + "0";
+    camera.sourceOpenCallback = function() {
+      camera.ws = new WebSocket(url);
+      camera.ws.binaryType = "arraybuffer";
+      camera.ws.onopen = function(event) {
         console.log('Connect to ws');
       }
-      ws.onmessage = function(event) {
+      camera.ws.onmessage = function(event) {
         let data = new Uint8Array(event.data);
         if (data[0] == 9) {
           let decoded_arr = data.slice(1);
@@ -53,12 +64,14 @@ class VideoGrid extends React.Component {
           readPacket(event.data);
         }
       };
-    }, false);
+    }
+
+    camera.mse.addEventListener('sourceopen', camera.sourceOpenCallback, false);
 
 		function pushPacket() {
 			if (!camera.mseSourceBuffer.updating) {
 				if (camera.mseQueue.length > 0) {
-					packet = camera.mseQueue.shift();
+					let packet = camera.mseQueue.shift();
           console.log("Pushing Packet!");
           console.log(camera);
           console.log(camera.mseSourceBuffer);
@@ -103,10 +116,8 @@ class VideoGrid extends React.Component {
     if(!this.props.display && prevProps.display) {
       console.log("Shut down the streams!");
       this.props.nodeConfig.cameras.forEach(camera => {
-        camera.reference = null;
-        camera = null;
+        this.unwireStream(camera);
       });
-      console.log("Removed the stream");
     }
   }
 
