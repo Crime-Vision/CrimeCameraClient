@@ -88,7 +88,6 @@ function ButtonAppBar(props) {
               value={props.app.state['selectedTab']}
               onChange={handleTabClick} >
               <Tab value="map" label="Map" {...a11yProps("calls")} />
-              <Tab value="video-wall" label="Video Wall" {...a11yProps("video-wall")}/>
               <Tab value="admin" label="Camera Administration" {...a11yProps("admin")} />
             </Tabs>
           </div>
@@ -116,9 +115,6 @@ class App extends React.Component {
           <ButtonAppBar app={this}/>
           <TabPanel value={this.state["selectedTab"]} index="map">
             <Map nodes={[]}></Map>
-          </TabPanel>
-          <TabPanel value={this.state["selectedTab"]} index="video-wall"  >
-            <iframe src={`http://${process.env.RTSPTOWEB_HOST_AND_PORT}/pages/multiview/full?controls`} style={{width: "100%", height: "100%"}} />
           </TabPanel>
           <TabPanel value={this.state["selectedTab"]} index="admin">
             <iframe src={`http://${process.env.API_HOST_AND_PORT || 'localhost:3000'}/admin/resources/Nodes/`} style={{width: "100%", height: "100%"}} />
