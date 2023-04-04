@@ -17,10 +17,19 @@ class BroadcastWindow extends React.Component {
       connected: false,
       tabValue: 0,
       readyToBroadcast: false,
-      isBroadcasting: false
+      isBroadcasting: false,
+      lightIsFlashing: false
     }
 
     this.websocket = null;
+  }
+
+  startLights() {
+    this.websocket.send("light: start"); 
+  }
+
+  stopLights() {
+    this.websocket.send("light: stop");
   }
 
   openWebsocketConnectionToHardware() {
@@ -39,6 +48,19 @@ class BroadcastWindow extends React.Component {
     this.websocket.onmessage = function(event) {
       console.log("RECEIVED MESSAGE");
       console.log(event);
+
+      if(event.type == "message" && event.data.startsWith("light: ") ) {
+        console.log("Received light Status Message:");
+        console.log(event.data);
+
+        if(event.data.replace("light: ", "") == "flashing") {
+          component.setState({lightIsFlashing: true});
+        }
+
+        if(event.data.replace("light: ", "") == "stopped") {
+          component.setState({lightIsFlashing: false});
+        }
+      }
 
       if(event.type == "message" && event.data.startsWith("broadcast: ") ) {
         console.log("Received Broadcast Status Message:");
@@ -161,6 +183,11 @@ class BroadcastWindow extends React.Component {
                 <Paper style={ { padding: "20px" } }>
                   <h2 style={ { textAlign: "center" } }>Turn Lights On or Off</h2>
                   <hr />
+                  <div style={ { margin: "0 auto", textAlign: "center" } }>
+                    <p> { "Status: " + (this.state.lightIsFlashing ? "Flashing" : "Off") } </p>
+                    <Button sx={ {border: "1px solid white", marginTop: "10px" } } color="success" variant="contained" onClick={() => { this.startLights() }}>Turn Strobe On</Button>
+                    <Button sx={ {border: "1px solid white", marginTop: "10px" } } color="error" variant="contained" onClick={() => { this.stopLights() } }>Turn Strobe Off</Button>
+                  </div>
                 </Paper>
               ) }
             </div>
