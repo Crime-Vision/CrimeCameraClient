@@ -15,7 +15,9 @@ class BroadcastWindow extends React.Component {
     this.state = {
       dialogOpen: false,
       connected: false,
-      tabValue: 0
+      tabValue: 0,
+      readyToBroadcast: false,
+      isBroadcasting: false
     }
 
     this.websocket = null;
@@ -29,6 +31,32 @@ class BroadcastWindow extends React.Component {
     this.websocket.onopen = function() {
       component.setState({connected: true});
     };
+
+    this.websocket.onclose = function() {
+      component.setState({connected: false, readyToBroadcast: false, isBroadcasting: false});
+    }
+
+    this.websocket.onmessage = function(event) {
+      console.log("RECEIVED MESSAGE");
+      console.log(event);
+
+      if(event.type == "message" && event.data.startsWith("broadcast: ") ) {
+        console.log("Received Broadcast Status Message:");
+        console.log(event.data);
+
+        if(event.data.replace("broadcast: ", "") == "ready") {
+          component.setState({readyToBroadcast: true});    
+        }
+
+        if(event.data.replace("broadcast: ", "") == "stopped") {
+          component.setState({isBroadcasting: false});
+        }
+
+        if(event.data.replace("broadcast: ", "") == "started") {
+          component.setState({isBroadcasting: true});
+        }
+      }
+    }
 
   }
 
@@ -59,18 +87,21 @@ class BroadcastWindow extends React.Component {
     }
   }
 
+  toggleBroadcast() {
+    if(this.state.isBroadcasting == false) {
+      this.websocket.send("broadcast: start");
+    } else {
+      this.websocket.send("broadcast: stop");
+    }
+  }
+
   blobReady(blobURL) {
-    console.log("Caught blob URL:");
-    console.log(blobURL);
 
     fetch(blobURL)
       .then(r => r.blob())
-      .then( (blob) => {
-        return blob.text()
-      }).then( (text) => {
-        console.log(text);
+      .then(blob => {
+        this.websocket.send(blob);
       });
-
   }
 
   render() {
@@ -112,10 +143,10 @@ class BroadcastWindow extends React.Component {
                           controls src={audioResult} />
                         <div>
                           <div style={ { margin: "0 auto", textAlign: "center" } }>
-                            <p>{new Date(timer * 1000).toISOString().substr(11, 8)}</p>
+                            <p>{ timer > 0 && "Recording Broadcast: " + new Date(timer * 1000).toISOString().substr(11, 8)}</p>
                             <Button sx={ {border: "1px solid white", marginTop: "10px" } } color="success" variant="contained" onClick={startRecording}>Start Recording</Button>
                             <Button sx={ {border: "1px solid white", marginTop: "10px" } } color="error" variant="contained" onClick={stopRecording}>Stop Recording</Button>
-                            <Button sx={ {border: "1px solid white", marginTop: "10px" } } color="warning" variant="contained" onClick={null}>Toggle Broadcast</Button>
+                            { this.state.readyToBroadcast && <Button sx={ {border: "1px solid white", marginTop: "10px" } } color="warning" variant="contained" onClick={() => { this.toggleBroadcast() } }>{this.state.isBroadcasting ? "Stop" : "Start" } Broadcast</Button> } 
                           </div>
                         </div>
                       </div>
