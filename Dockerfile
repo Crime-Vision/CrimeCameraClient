@@ -1,4 +1,4 @@
-FROM bitnami/node
+FROM bitnami/node:18.15.0
 WORKDIR /app
 
 EXPOSE 1234
