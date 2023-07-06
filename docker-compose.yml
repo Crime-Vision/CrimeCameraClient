@@ -5,7 +5,7 @@ services:
     ports:
       - '1234:1234'
     volumes:
-      - '$PWD/.:/app'
+      - '.:/app'
     container_name: crime-camera-client
 
 #  Make sure the following is set in your own environment
