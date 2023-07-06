@@ -1,0 +1,14 @@
+version: '3.3'
+services:
+    run:
+      #  Make sure the following is set in your own environment
+      #  We use ansible for this
+      #  environment:
+      #      - 'RTSPTOWEB_HOST_AND_PORT=client.crime-vision.com:8083'
+      #      - 'API_HOST_AND_PORT=client.crime-vision.com:3000'
+        ports:
+            - '1234:1234'
+        volumes:
+            - '$PWD/.:/app'
+        container_name: crime-camera-client
+        image: run
