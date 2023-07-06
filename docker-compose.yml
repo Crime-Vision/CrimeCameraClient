@@ -7,8 +7,7 @@ services:
     volumes:
       - '.:/app'
     container_name: crime-camera-client
+    environment:
+      - "RTSPTOWEB_HOST_AND_PORT=${HOSTNAME}:8083"
+      - "API_HOST_AND_PORT=${HOSTNAME}:3000"
 
-#  Make sure the following is set in your own environment
-#  We use ansible for this
-#      'RTSPTOWEB_HOST_AND_PORT=server-host.crime-vision.com:8083'
-#      'API_HOST_AND_PORT=server-host.crime-vision.com:3000'
