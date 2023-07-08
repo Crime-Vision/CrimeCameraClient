@@ -7,7 +7,4 @@ services:
     volumes:
       - '.:/app'
     container_name: crime-camera-client
-    environment:
-      - "RTSPTOWEB_HOST_AND_PORT=${HOSTNAME}:8083"
-      - "API_HOST_AND_PORT=${HOSTNAME}:3000"
 
